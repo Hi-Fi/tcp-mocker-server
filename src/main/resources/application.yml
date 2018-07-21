@@ -1,0 +1,11 @@
+mock:
+  services:
+    - name: calculator1
+      mockPort: 10088
+      targetHost: localhost
+      targetPort: 8088
+      fieldsToClear: timeStamp,nonExistingField
+    - name: calculator2
+      mockPort: 10089
+      targetHost: localhost
+      targetPort: 8089
