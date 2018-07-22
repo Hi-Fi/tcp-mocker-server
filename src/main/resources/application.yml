@@ -9,3 +9,7 @@ mock:
       mockPort: 10089
       targetHost: localhost
       targetPort: 8089
+    - name: sampleTcpClientServer
+      mockPort: 10090
+      targetHost: localhost
+      targetPort: 30814

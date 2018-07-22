@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import com.github.hi_fi.tcpMockeServer.backend.Route.Gateway;
 import com.github.hi_fi.tcpMockeServer.data.RequestCache;
 import com.github.hi_fi.tcpMockeServer.utils.Hasher;
+import com.github.hi_fi.tcpMockeServer.utils.HttpHeaderHandler;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,8 +38,10 @@ public class IncomingRequest {
 		String requestHash = hasher.getPayloadHash(message);
 		Message responseMessage;
 		if (cache.isRequestInCache(requestHash)) {
+			log.debug("Returning cached message for "+requestHash);
 			responseMessage = cache.getCachedResponse(requestHash);
 		} else {
+			log.debug("Requesting response from backend for "+requestHash);
 			responseMessage = gw.sendToBacked(message);
 			cache.addRequestToCache(requestHash, responseMessage);
 		}
