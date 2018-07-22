@@ -1,0 +1,22 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Getting Started: Serving Web Content</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+    <h1>Cached responses</h1>
+            <table>
+                <thead>
+                    <td>Request hash</td>
+                    <td>Response headers</td>
+                    <td>Response payload</td>
+                </thead>
+                <tr th:each="cacheItem : ${cachedResponses}">
+                    <td th:text="${cacheItem.key}">Request hash</td>
+                    <td th:text="${cacheItem.value.getHeaders()}">Response headers</td>
+                    <td th:text="${new String(cacheItem.value.getPayload())}">Response payload</td>
+                </tr>
+            </table>
+</body>
+</html>

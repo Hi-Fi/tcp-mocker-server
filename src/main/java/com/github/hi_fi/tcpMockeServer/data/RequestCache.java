@@ -23,5 +23,8 @@ public class RequestCache {
 		return this.cachedRequests.get(requestHash);
 	}
 	
-
+	public Map<String, Message> getCachedMessages() {
+	    return this.cachedRequests;
+	}
+	
 }
