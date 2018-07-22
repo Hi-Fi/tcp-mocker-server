@@ -42,6 +42,9 @@ public class MockInit {
 
 	private List<Mock> services;
 	
+	public void addMock(Mock mock) {
+	    this.services.add(mock);
+	}
 	public void setServices(List<Mock> services) {
 		this.services = services;
 	}
@@ -70,7 +73,7 @@ public class MockInit {
 		// iterate over properties and register new beans
 	}
 	
-	private void startMock(Mock mock) {
+	public void startMock(Mock mock) {
 		if(!mockServices.containsKey(mock.getName())){
 			//ConnectionFactory for mock's incoming port
 			BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(TcpNetServerConnectionFactory.class);
@@ -96,7 +99,7 @@ public class MockInit {
 		((TcpInboundGateway) beanFactory.getBean(mockServices.get(mock.getName()))).start();
 	}
 	
-	private void startMockBackendConnection(Mock mock) {
+	public void startMockBackendConnection(Mock mock) {
 		if (!backendServices.containsKey(mock.getName())) {
 			//ConnectionFactory for mock's connection to real endpoint
 			BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(TcpNetClientConnectionFactory.class);
