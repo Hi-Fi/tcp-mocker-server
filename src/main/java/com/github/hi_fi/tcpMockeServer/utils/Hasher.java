@@ -16,6 +16,9 @@ public class Hasher {
 	@Autowired
 	private FieldsToClear ftc; 
 	
+	@Autowired
+	private RegexpFilters rf;
+	
 	public String getPayloadHash(Message message) {
 		String messageContent = new String((byte[]) message.getPayload());
 		if (messageContent.startsWith("POST") && messageContent.toLowerCase().contains("soapaction")) {
@@ -24,6 +27,10 @@ public class Hasher {
 			log.debug(messageContent);
 			for (String fieldName : ftc.getFieldsToClear(message.getHeaders().get("mockName").toString())) {
 				messageContent = messageContent.replaceAll("<([a-z0-9]+?:)"+fieldName+"(\\s.*?)?>.*?<?[a-z0-9]+?:"+fieldName+">", "<$1"+fieldName+" $2>XXX</$1"+fieldName+">");
+			}
+			for (String regexReplace : rf.getRegexpFilters(message.getHeaders().get("mockName").toString())) {
+				String[] filters = regexReplace.split("->");
+                		messageContent = messageContent.replaceAll(filters[0], filters[1]);
 			}
 			messageContent = messageContent.substring(messageContent.indexOf("<"));
 			log.debug(messageContent);
