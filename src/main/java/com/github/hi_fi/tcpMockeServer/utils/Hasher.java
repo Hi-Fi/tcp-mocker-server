@@ -23,7 +23,7 @@ public class Hasher {
 			//Clearing out the elements that are mentioned on the configuration
 			log.debug(messageContent);
 			for (String fieldName : ftc.getFieldsToClear(message.getHeaders().get("mockName").toString())) {
-				messageContent = messageContent.replaceAll("<(.*?)"+fieldName+"(.*?)>.*?</(.*?)"+fieldName+">", "<$1"+fieldName+"$2>XXX</$1"+fieldName+">");
+				messageContent = messageContent.replaceAll("<([a-z0-9]+?:)"+fieldName+"(\\s.*?)?>.*?<?[a-z0-9]+?:"+fieldName+">", "<$1"+fieldName+" $2>XXX</$1"+fieldName+">");
 			}
 			messageContent = messageContent.substring(messageContent.indexOf("<"));
 			log.debug(messageContent);
