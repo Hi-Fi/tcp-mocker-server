@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
+import org.springframework.integration.http.management.IntegrationGraphController;
 import org.springframework.integration.ip.tcp.TcpInboundGateway;
 import org.springframework.integration.ip.tcp.TcpOutboundGateway;
 import org.springframework.integration.ip.tcp.connection.TcpNetClientConnectionFactory;
@@ -54,7 +55,7 @@ public class MockInit {
 
 	@Autowired
 	private RegexpFilters rf;
-
+	
 	@PostConstruct
 	public void init() {
 		AutowireCapableBeanFactory bf = this.applicationContext.getAutowireCapableBeanFactory();

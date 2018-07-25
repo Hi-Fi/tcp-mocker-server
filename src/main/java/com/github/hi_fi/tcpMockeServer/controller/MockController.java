@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.integration.http.management.IntegrationGraphController;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +24,9 @@ public class MockController {
     
     @Autowired
     private RequestCache cache;
+    
+    @Autowired
+    private IntegrationGraphController igc;
 
     @RequestMapping("/")
     public String listMocks(Map<String, Object> model) {
@@ -47,6 +51,7 @@ public class MockController {
         mi.addMock(mock);
         mi.startMock(mock);
         mi.startMockBackendConnection(mock);
+        igc.refreshGraph();
         return "redirect:/";
     }
 }

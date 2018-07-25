@@ -6,6 +6,7 @@ import org.springframework.messaging.Message;
 import org.springframework.stereotype.Service;
 
 import com.github.hi_fi.tcpMockeServer.data.FieldsToClear;
+import com.github.hi_fi.tcpMockeServer.data.RegexpFilters;
 
 import lombok.extern.slf4j.Slf4j;
 
