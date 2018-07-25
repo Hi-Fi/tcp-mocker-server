@@ -3,6 +3,11 @@
 <head>
     <title>Getting Started: Serving Web Content</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <style>
+      code.prettyprint { display: block; white-space: pre-wrap }
+      div.el {margin-left: 2em}
+    </style>
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
 </head>
 <body>
     <h1>Cached responses</h1>
@@ -14,8 +19,8 @@
                 </thead>
                 <tr th:each="cacheItem : ${cachedResponses}">
                     <td th:text="${cacheItem.key}">Request hash</td>
-                    <td th:text="${cacheItem.value.getHeaders()}">Response headers</td>
-                    <td th:text="${new String(cacheItem.value.getPayload())}">Response payload</td>
+                    <td ><code class="prettyprint" th:text="${cacheItem.value.getMessageHeaders()}">Response headers</code></td>
+                    <td><code class="prettyprint" th:text="${#strings.abbreviate(cacheItem.value.getMessageContent(), 60)}">Response payload</code></td>
                 </tr>
             </table>
 </body>

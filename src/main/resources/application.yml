@@ -13,3 +13,7 @@ mock:
       mockPort: 10090
       targetHost: localhost
       targetPort: 30814
+    - name: amazon
+      mockPort: 10091
+      targetHost: localhost
+      targetPort: 9090

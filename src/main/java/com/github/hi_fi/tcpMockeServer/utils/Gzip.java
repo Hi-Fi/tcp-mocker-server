@@ -16,5 +16,9 @@ public class Gzip {
 		  }
 		  return new String(out.toByteArray(),"UTF-8");
 		}
+	
+	public static boolean isCompressed(final byte[] compressed) {
+	    return (compressed[0] == (byte) (GZIPInputStream.GZIP_MAGIC)) && (compressed[1] == (byte) (GZIPInputStream.GZIP_MAGIC >> 8));
+	  }
 
 }
