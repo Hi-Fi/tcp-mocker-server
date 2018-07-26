@@ -35,8 +35,6 @@ public class IncomingRequest {
 	public Message handleRequestMessage(Message message) {
 		String requestHash = hasher.getPayloadHash(message);
 		Message responseMessage;
-		log.info(message.getHeaders().toString());
-		log.info("Gzip magiz: "+GZIPInputStream.GZIP_MAGIC+ "as byte: "+(byte)GZIPInputStream.GZIP_MAGIC);
 		if (cache.isRequestInCache(requestHash)) {
 			log.debug("Returning cached message for "+requestHash);
 			responseMessage = cache.getCachedResponse(requestHash);
@@ -44,8 +42,6 @@ public class IncomingRequest {
 			log.debug("Requesting response from backend for "+requestHash);
 			responseMessage = gw.sendToBacked(message);
 			cache.addRequestToCache(requestHash, responseMessage);
-			log.info(responseMessage.getHeaders().toString());
-			log.info(Arrays.toString((byte[])responseMessage.getPayload()));
 		}
 		return responseMessage;
 	}

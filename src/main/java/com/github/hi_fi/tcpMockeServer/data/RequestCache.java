@@ -25,9 +25,7 @@ public class RequestCache {
 	
 	public void addRequestToCache(String requestHash, Message responseMessage) {
 		this.cachedRequests.put(requestHash, responseMessage);
-		this.parsedCachedRequests.put(requestHash, Response.builder().messageContent(mcp.getMessageContent(responseMessage)).messageHeaders(responseMessage.getHeaders().toString()).build());
-		System.out.println(this.parsedCachedRequests.get(requestHash).getMessageContent());
-	}
+		this.parsedCachedRequests.put(requestHash, Response.builder().messageContent(mcp.getMessageContent(responseMessage)).messageHeaders(responseMessage.getHeaders().toString()).build());	}
 	
 	public Message getCachedResponse(String requestHash) {
 		return this.cachedRequests.get(requestHash);

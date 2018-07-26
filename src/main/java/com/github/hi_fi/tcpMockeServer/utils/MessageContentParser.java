@@ -5,7 +5,10 @@ import java.io.IOException;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Service;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class MessageContentParser {
     
     public String getMessageContent(Message message) {
@@ -37,7 +40,6 @@ public class MessageContentParser {
             }
             n++;
         }
-        System.out.println(String.format("N: %s, length of payload %s", n, payload.length));
         byte[] assembledData = new byte[payload.length-n];
         System.arraycopy(payload, n+1, assembledData, 0, payload.length-n-1);
         return assembledData;
