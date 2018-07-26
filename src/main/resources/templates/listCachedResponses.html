@@ -17,10 +17,10 @@
                     <td>Request message (compared version)</td>
                     <td>Response payload</td>
                 </thead>
-                <tr th:each="cacheItem : ${cachedResponses}">
-                    <td th:text="${cacheItem.key}">Request hash</td>
-                    <td><code class="prettyprint" th:text="${cacheItem.key}">Request message (compared version)</code></td>
-                    <td><code class="prettyprint" th:text="${cacheItem.value.getMessageContent()}">Response payload</code></td>
+                <tr th:each="messageData : ${messageDatas}">
+                    <td th:text="${messageData.key}">Request hash</td>
+                    <td><code class="prettyprint" th:text="${messageData.value.getRequestContent()}">Request message (compared version)</code></td>
+                    <td><code class="prettyprint" th:text="${messageData.value.getResponseContent()}">Response payload</code></td>
                 </tr>
             </table>
 </body>

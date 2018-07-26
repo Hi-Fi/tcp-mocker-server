@@ -36,7 +36,7 @@ public class MockController {
     
     @RequestMapping("/cache")
     public String listCache(Map<String, Object> model) {
-        model.put("cachedResponses", cache.getParsedCachedResponses());
+        model.put("messageDatas", cache.getMessageDatas());
         return "listCachedResponses";
     }
     

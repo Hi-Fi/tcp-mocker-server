@@ -17,3 +17,4 @@ mock:
       mockPort: 10091
       targetHost: localhost
       targetPort: 9090
+      fieldsToClear: BrowseNodeId
