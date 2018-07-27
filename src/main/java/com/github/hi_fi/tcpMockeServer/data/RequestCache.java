@@ -22,13 +22,13 @@ public class RequestCache {
 		return this.messageDatas.containsKey(requestHash) && this.messageDatas.get(requestHash).getMockResponse() != null;
 	}
 	
-	public void addRequestToCache(String requestHash, Message requestMessage) {
+	public void addRequestContentToCache(String requestHash, String messageContent) {
 	    MessageData messageData;
 	    if (messageDatas.containsKey(requestHash)) {
 	        messageData = messageDatas.get(requestHash);
-	        messageData.setRequestContent(mcp.getMessageContent(requestMessage));
+	        messageData.setRequestContent(messageContent);
 	    } else {
-	        messageData = MessageData.builder().hash(requestHash).requestContent(mcp.getMessageContent(requestMessage)).build();
+	        messageData = MessageData.builder().hash(requestHash).requestContent(messageContent).build();
 	    }
 		this.messageDatas.put(requestHash, messageData);	
 	}

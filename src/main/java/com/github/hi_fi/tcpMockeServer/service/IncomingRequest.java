@@ -41,7 +41,7 @@ public class IncomingRequest {
 		} else {
 			log.debug("Requesting response from backend for "+requestHash);
 			responseMessage = gw.sendToBacked(message);
-			cache.addRequestToCache(requestHash, responseMessage);
+			cache.addResponseToCache(requestHash, responseMessage);
 		}
 		return responseMessage;
 	}

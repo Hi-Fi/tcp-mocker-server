@@ -31,7 +31,7 @@ public class Hasher {
 		    messageContent = ((IPayloadParser)bf.getBean(message.getHeaders().get("mockName")+"Parser")).getHashablePayload(message);
 		}
 		String hash = DigestUtils.sha256Hex(messageContent);
-		rc.addRequestToCache(hash, message);
+		rc.addRequestContentToCache(hash, messageContent);
 		return hash;
 	}
 }
