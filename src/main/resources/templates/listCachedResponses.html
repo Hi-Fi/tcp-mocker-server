@@ -22,7 +22,7 @@
                     <td th:text="${messageData.key}">Request hash</td>
                     <td><code class="prettyprint" th:text="${messageData.value.getRequestContent()}">Request message (compared version)</code></td>
                     <td><code class="prettyprint" th:text="${messageData.value.getResponseContent()}">Response payload</code></td>
-                    <td><form th:action="@{/deleteMessagedatas/${id}(id=${messageData.key})}" method="post">
+                    <td><form th:action="@{/deleteMessagedatas/${id}(id=${messageData.key})}" th:method="delete">
                         <input type="hidden" th:field="${messageData}">Delete</input>
                         <button type="submit" onClick="return confirm('sure?')"/>
                     </form></td>
