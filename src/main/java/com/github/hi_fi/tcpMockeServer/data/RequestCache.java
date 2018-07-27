@@ -54,4 +54,7 @@ public class RequestCache {
 	    return this.messageDatas;
 	}
 	
+	public void removeCachedInformation(String requestHash) {
+	    this.messageDatas.remove(requestHash);
+	}
 }

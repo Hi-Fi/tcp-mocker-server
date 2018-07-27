@@ -30,14 +30,22 @@ public class SoapParser implements IPayloadParser {
 		//Clearing out the elements that are mentioned on the configuration
 		log.debug(messageContent);
 		for (String fieldName : ftc.getFieldsToClear(message.getHeaders().get("mockName").toString())) {
-			messageContent = messageContent.replaceAll("<([a-z0-9]+?:)"+fieldName+"(\\s.*?)?>.*?<?[a-z0-9]+?:"+fieldName+">", "<$1"+fieldName+" $2>XXX</$1"+fieldName+">");
+			messageContent = this.replaceField(messageContent, fieldName);
 		}
 		for (String regexReplace : rf.getRegexpFilters(message.getHeaders().get("mockName").toString())) {
-			String[] filters = regexReplace.split("->");
-            		messageContent = messageContent.replaceAll(filters[0], filters[1]);
+		    messageContent = this.replaceWithRegexp(messageContent, regexReplace);
 		}
 		messageContent = messageContent.substring(messageContent.indexOf("<"));
 		return messageContent;
+	}
+	
+	protected String replaceField(String messageContent, String fieldName) {
+		return messageContent.replaceAll("<([a-z0-9]+?:)"+fieldName+"(\\s.*?)?>.*?<?[a-z0-9]+?:"+fieldName+">", "<$1"+fieldName+"$2>XXX</$1"+fieldName+">");	    
+	}
+	
+	protected String replaceWithRegexp(String messageContent, String regexReplace) {
+		String[] filters = regexReplace.split("->");
+        return messageContent.replaceAll(filters[0], filters[1]);
 	}
 
 }
