@@ -8,6 +8,7 @@ Server makes all connections at the TCP level. This might cause some issues espe
 Caller <-> \<mockName\>IncomingGateway <-> \<mockName\>MockIncomingChannel -> Transformer (adds mockName to headers) -> ServiceChannel -> Service activator (handleRequestMessage) -> sendToBackend -gateway -> mockTargetTransformer -> fixHttpMessageHost -transformer (adds real endpoint host to HTTP messages) -> mockTargetRouter -> router -> \<mockName\>TargetOutgoingChannel -> \<mockName\>OutgoingGateway -> real system
                                                               |<------------Cached response returned from service activator-----------------------------------|                                                                                                                                                                                                                                        |                   
                                                               |<------------Response returned to the caller through gateway-----------------------------------|<----------------------------------------------------------------Response returned to service activator which caches it-----------------------------------------------------------------------------------------------------------------|                  
+                                                              |<------------Response from specific mock service-----------------------------------------------|
 ```
 
 \<mockName\> comes from mock configuration, and all elements containing that are dynamically created (either from properties or while adding mock runtime)
@@ -23,8 +24,9 @@ Application configuration keys are under mock.services as a list
   services:
     - name: <name of the mock. Has to be unique. Mandatory>
       mockPort: <port that application created for traffic. Has to be free. Mandatory>
-      targetHost: <IP or host to the actual endpoint (that's used if response is not cached). Mandatory>
-      targetPort: <Port to the actual endpoint (that's used if response is not cached). Mandatory>
+      targetHost: <IP or host to the actual endpoint (that's used if response is not cached). Mandatory if proxying to backend>
+      targetPort: <Port to the actual endpoint (that's used if response is not cached). Mandatory if proxying to backend>
+      mockBeanName: <Bean that generates the responses for the calls coming to specific mock port. Mandatory if generating responses in app.>
       endpointType: <HTTP or TCP. Not currently in use>
       messageStarter: <byte presentation of started bits (comma separated). Not hex>
       bytesToClear: <Integer Indices (comma separated) of bytes that needs to be set to 0.>
@@ -36,7 +38,7 @@ Application configuration keys are under mock.services as a list
 There's 2 ways to extend the mock: 1 for how to parse the incoming message in a way, that dynamic data (e.g. timestamps) are not interfering with the hashing. Second possibility is to create Mockservices, that generate responses to calls.
 
 ### Parser extensions
-Parser should implement interface `IPayloadParser`, and return the payload (as String) that is OK to be used for hash calculation. Bean name should be formed as <parser name>Parser (e.g. SoapParser in the `com.github.hi_fi.tcpMockeServer.parserscom.github.hi_fi.tcpMockeServer.parsers`.
+Parser should implement interface `IPayloadParser`, and return the payload (as String) that is OK to be used for hash calculation. Bean name should be formed as <parser name>Parser (e.g. SoapParser in the `com.github.hi_fi.tcpMockeServer.parserscom.github.hi_fi.tcpMockeServer.parsers`).
 
 ### Mocking services
 Service's default approach is to proxy the request to real backend, and next times respond directly with that cached content. Other option is to create class that implements `IMockService`, and configure the bean name to application configuration. That way the call is not sent to backend (unless that call is made in the implementing service). Request-response are still cached, so that generation might be done only once (note this if wanting to get e.g. latest timestamp with each call).
