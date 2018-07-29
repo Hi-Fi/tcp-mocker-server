@@ -1,4 +1,4 @@
-package com.github.hi_fi.tcpMockeServer.backend;
+package com.github.hi_fi.tcpMockeServer.proxy;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.annotation.MessagingGateway;

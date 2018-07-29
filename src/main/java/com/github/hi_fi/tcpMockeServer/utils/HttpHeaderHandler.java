@@ -18,7 +18,7 @@ public class HttpHeaderHandler {
 	MockInit mi;
 	
 	public Message replaceHostWithRealEndpoint(Message message) {
-		log.info("Replacing HTTP header information in message payload");
+		log.debug("Replacing HTTP header information in message payload");
 		String messageContent = new String((byte[]) message.getPayload());
 		log.debug(messageContent);
 		String mockName = message.getHeaders().get("mockName").toString();

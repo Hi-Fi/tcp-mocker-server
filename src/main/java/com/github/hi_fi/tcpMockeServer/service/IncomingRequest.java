@@ -1,5 +1,9 @@
-package com.github.hi_fi.tcpMockeServer.mock;
+package com.github.hi_fi.tcpMockeServer.service;
 
+import java.util.Arrays;
+import java.util.zip.GZIPInputStream;
+
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.integration.annotation.ServiceActivator;
@@ -8,8 +12,10 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.stereotype.Component;
 
-import com.github.hi_fi.tcpMockeServer.backend.Route.Gateway;
 import com.github.hi_fi.tcpMockeServer.data.RequestCache;
+import com.github.hi_fi.tcpMockeServer.mock.IMockService;
+import com.github.hi_fi.tcpMockeServer.parsers.IPayloadParser;
+import com.github.hi_fi.tcpMockeServer.proxy.Route.Gateway;
 import com.github.hi_fi.tcpMockeServer.utils.Hasher;
 import com.github.hi_fi.tcpMockeServer.utils.HttpHeaderHandler;
 
@@ -28,10 +34,8 @@ public class IncomingRequest {
 	@Autowired
 	RequestCache cache;
 	
-	@Bean
-	public MessageChannel toMock() {
-		return new DirectChannel();
-	}
+	@Autowired
+	BeanFactory bf;
 	
 	@ServiceActivator(inputChannel = "ServiceChannel")
 	public Message handleRequestMessage(Message message) {
@@ -40,12 +44,14 @@ public class IncomingRequest {
 		if (cache.isRequestInCache(requestHash)) {
 			log.debug("Returning cached message for "+requestHash);
 			responseMessage = cache.getCachedResponse(requestHash);
+		} else if (message.getHeaders().get("mockBeanName") != null) {
+			responseMessage = ((IMockService)bf.getBean(message.getHeaders().get("mockBeanName").toString())).getResponse(message);
+			cache.addResponseToCache(requestHash, responseMessage);
 		} else {
 			log.debug("Requesting response from backend for "+requestHash);
 			responseMessage = gw.sendToBacked(message);
-			cache.addRequestToCache(requestHash, responseMessage);
+			cache.addResponseToCache(requestHash, responseMessage);
 		}
-		
 		return responseMessage;
 	}
 }

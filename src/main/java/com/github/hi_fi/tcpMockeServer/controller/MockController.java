@@ -4,10 +4,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.integration.http.management.IntegrationGraphController;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -23,6 +26,9 @@ public class MockController {
     
     @Autowired
     private RequestCache cache;
+    
+    @Autowired
+    private IntegrationGraphController igc;
 
     @RequestMapping("/")
     public String listMocks(Map<String, Object> model) {
@@ -32,7 +38,7 @@ public class MockController {
     
     @RequestMapping("/cache")
     public String listCache(Map<String, Object> model) {
-        model.put("cachedResponses", cache.getCachedMessages());
+        model.put("messageDatas", cache.getMessageDatas());
         return "listCachedResponses";
     }
     
@@ -47,6 +53,13 @@ public class MockController {
         mi.addMock(mock);
         mi.startMock(mock);
         mi.startMockBackendConnection(mock);
+        igc.refreshGraph();
         return "redirect:/";
+    }
+    
+    @DeleteMapping("/cache/{messageDataId}")
+    public String removeItem(@PathVariable String messageDataId) {
+        cache.removeCachedInformation(messageDataId);
+        return "redirect:/cache";
     }
 }
