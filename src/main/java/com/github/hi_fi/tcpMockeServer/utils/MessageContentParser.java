@@ -40,6 +40,8 @@ public class MessageContentParser {
             }
             n++;
         }
+        //if no header present, just presuming that whole message is content (header is missing for some reason)
+        n = n < payload.length ? n : 0;
         byte[] assembledData = new byte[payload.length-n];
         System.arraycopy(payload, n+1, assembledData, 0, payload.length-n-1);
         return assembledData;

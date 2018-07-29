@@ -34,7 +34,6 @@ public class RequestCache {
 	}
 	
 	public void addResponseToCache(String requestHash, Message responseMessage) {
-        this.messageDatas.put(requestHash, MessageData.builder().hash(requestHash).responseContent(mcp.getMessageContent(responseMessage)).mockResponse(responseMessage).build());
         MessageData messageData;
         if (messageDatas.containsKey(requestHash)) {
             messageData = messageDatas.get(requestHash);

@@ -31,11 +31,19 @@ Application configuration keys are under mock.services as a list
       fieldsToClear: <xml fields (comma separated) that needs to be cleared when calculating hash. E.g. timestamps and nonces>
       regexpFilters: <Additional regexp filters for SOAP calls. Format <regexp for replace>-><replacement>. E.g. UsernameToken-[a-fA-F0-9_-]*->UsernameToken-xxxx>
   ```
-      
+
+## Extending mock
+There's 2 ways to extend the mock: 1 for how to parse the incoming message in a way, that dynamic data (e.g. timestamps) are not interfering with the hashing. Second possibility is to create Mockservices, that generate responses to calls.
+
+### Parser extensions
+Parser should implement interface `IPayloadParser`, and return the payload (as String) that is OK to be used for hash calculation. Bean name should be formed as <parser name>Parser (e.g. SoapParser in the `com.github.hi_fi.tcpMockeServer.parserscom.github.hi_fi.tcpMockeServer.parsers`.
+
+### Mocking services
+Service's default approach is to proxy the request to real backend, and next times respond directly with that cached content. Other option is to create class that implements `IMockService`, and configure the bean name to application configuration. That way the call is not sent to backend (unless that call is made in the implementing service). Request-response are still cached, so that generation might be done only once (note this if wanting to get e.g. latest timestamp with each call).
+
 ## Good to know
 Only some basic UI pages are created. All start with service host and port (localhost:8080 by default)
 - **/** - Information about running mocks
 - **/cache** - List of cached responses and request hashes matching those
 - **/add** - Possibility to add (simple) new mock runtime
 - **/integration** - Spring integration statistics from system. Displays only one that are generated from properties
- 

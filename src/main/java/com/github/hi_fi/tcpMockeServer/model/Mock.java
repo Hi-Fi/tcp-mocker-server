@@ -16,6 +16,7 @@ public class Mock {
 	private String messageStarter = "";
 	private String bytesToClear = "";
 	private Type endpointType = Type.TCP;
+	private String mockBeanName = null;
 	
 	@Override
 	public String toString() {

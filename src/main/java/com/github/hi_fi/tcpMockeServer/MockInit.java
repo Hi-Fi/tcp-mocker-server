@@ -84,7 +84,7 @@ public class MockInit {
                 mockServices.put(mock.getName(), mock.getName() + "IncomingGateway");
 			//Enricher that adds mocks information to message headers. This created from channel automatically.
 			IntegrationFlow flow = IntegrationFlows.from(mock.getName() + "MockIncomingChannel")
-							.enrichHeaders(h -> h.header("mockName", mock.getName()))
+							.enrichHeaders(h -> h.header("mockName", mock.getName()).header("mockBeanName", mock.getMockBeanName()))
 							.channel("ServiceChannel")
 							.get();
 			beanFactory.registerSingleton(mock.getName() + "IncomingFlow", flow);
