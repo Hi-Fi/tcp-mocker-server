@@ -14,7 +14,8 @@ public class Mock {
 	private String fieldsToClear = "";
 	private String regexpFilters = "";
 	private String messageStarter = "";
-	private String bytesToClear = "";
+    //List of byte locations (in byte array) that needs to be copied from request to response in case of cached response is used.
+	private String bytesToCopy = "";
 	private Type endpointType = Type.TCP;
 	private String mockBeanName = null;
 	
