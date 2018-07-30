@@ -10,10 +10,13 @@ import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.support.GenericMessage;
 import org.springframework.stereotype.Component;
 
+import com.github.hi_fi.tcpMockeServer.MockInit;
 import com.github.hi_fi.tcpMockeServer.data.RequestCache;
 import com.github.hi_fi.tcpMockeServer.mock.IMockService;
+import com.github.hi_fi.tcpMockeServer.model.Mock;
 import com.github.hi_fi.tcpMockeServer.parsers.IPayloadParser;
 import com.github.hi_fi.tcpMockeServer.proxy.Route.Gateway;
 import com.github.hi_fi.tcpMockeServer.utils.Hasher;
@@ -37,6 +40,9 @@ public class IncomingRequest {
 	@Autowired
 	BeanFactory bf;
 	
+	@Autowired
+	MockInit mi;
+	
 	@ServiceActivator(inputChannel = "ServiceChannel")
 	public Message handleRequestMessage(Message message) {
 		String requestHash = hasher.getPayloadHash(message);
@@ -44,6 +50,18 @@ public class IncomingRequest {
 		if (cache.isRequestInCache(requestHash)) {
 			log.debug("Returning cached message for "+requestHash);
 			responseMessage = cache.getCachedResponse(requestHash);
+			Mock mock = mi.getServices().stream()
+                    .filter(m -> message.getHeaders().get("mockName").equals(m.getName()))
+                    .findFirst().orElse(null);
+            if (mock != null && !mock.getBytesToCopy().isEmpty()) {
+                for (String copy: mock.getBytesToCopy().split(",")) {
+                    String[] replacements = copy.split(">");
+                    //Direct editing of response's payload can cause interesting issues, so cloning it first
+                    byte[] responsePayload = ((byte[])responseMessage.getPayload()).clone();
+                    responsePayload[Integer.parseInt(replacements[0])] = ((byte[])message.getPayload())[Integer.parseInt(replacements[1])];
+                    responseMessage = new GenericMessage(responsePayload, message.getHeaders());
+                }
+            }
 		} else if (message.getHeaders().get("mockBeanName") != null) {
 			responseMessage = ((IMockService)bf.getBean(message.getHeaders().get("mockBeanName").toString())).getResponse(message);
 			cache.addResponseToCache(requestHash, responseMessage);
