@@ -40,7 +40,7 @@ public class SoapParser implements IPayloadParser {
 	}
 	
 	protected String replaceField(String messageContent, String fieldName) {
-		return messageContent.replaceAll("<([a-z0-9]+?:)"+fieldName+"(\\s.*?)?>.*?<?[a-z0-9]+?:"+fieldName+">", "<$1"+fieldName+"$2>XXX</$1"+fieldName+">");	    
+		return messageContent.replaceAll("<([a-z0-9]*?\\:?)?"+fieldName+"(\\s.*?)?>.*?</([a-z0-9]*?\\:?)?"+fieldName+">", "<$1"+fieldName+"$2>XXX</$1"+fieldName+">");	    
 	}
 	
 	protected String replaceWithRegexp(String messageContent, String regexReplace) {
