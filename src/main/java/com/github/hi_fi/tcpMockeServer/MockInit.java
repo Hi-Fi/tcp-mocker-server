@@ -3,6 +3,8 @@ package com.github.hi_fi.tcpMockeServer;
 import com.github.hi_fi.tcpMockeServer.data.FieldsToClear;
 import com.github.hi_fi.tcpMockeServer.data.RegexpFilters;
 import com.github.hi_fi.tcpMockeServer.model.Mock;
+import com.github.hi_fi.tcpMockeServer.model.Mock.Type;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -13,11 +15,16 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
+import org.springframework.integration.endpoint.AbstractEndpoint;
 import org.springframework.integration.http.management.IntegrationGraphController;
 import org.springframework.integration.ip.tcp.TcpInboundGateway;
 import org.springframework.integration.ip.tcp.TcpOutboundGateway;
+import org.springframework.integration.ip.tcp.TcpReceivingChannelAdapter;
+import org.springframework.integration.ip.tcp.TcpSendingMessageHandler;
 import org.springframework.integration.ip.tcp.connection.TcpNetClientConnectionFactory;
 import org.springframework.integration.ip.tcp.connection.TcpNioServerConnectionFactory;
+import org.springframework.integration.mapping.OutboundMessageMapper;
+import org.springframework.messaging.MessageHandler;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
@@ -105,18 +112,33 @@ public class MockInit {
 			builder.addPropertyValue("deserializer", new TcpMockServerSerializer(100000, mock.getMessageStarter()));
 			beanFactory.registerBeanDefinition(mock.getName() + "TargetConnFactory", builder.getBeanDefinition());
 			
-			//Gateway for mock's connection to real endpoint
-			builder = BeanDefinitionBuilder.rootBeanDefinition(TcpOutboundGateway.class);
-			builder.addPropertyReference("connectionFactory", mock.getName() + "TargetConnFactory");
-			beanFactory.registerBeanDefinition(mock.getName() + "OutgoingGateway", builder.getBeanDefinition());
-			backendServices.put(mock.getName(), mock.getName() + "OutgoingGateway");
-			
+			if (mock.getEndpointType().equals(Type.TCP)) {
+				//Gateway for mock's connection to real endpoint
+				builder = BeanDefinitionBuilder.rootBeanDefinition(TcpOutboundGateway.class);
+				builder.addPropertyReference("connectionFactory", mock.getName() + "TargetConnFactory");
+				beanFactory.registerBeanDefinition(mock.getName() + "OutgoingGateway", builder.getBeanDefinition());
+				backendServices.put(mock.getName(), mock.getName() + "OutgoingGateway");
+			} else if (mock.getEndpointType().equals(Type.HTTP)) {
+				builder = BeanDefinitionBuilder.rootBeanDefinition(TcpSendingMessageHandler.class);
+				builder.addPropertyReference("connectionFactory", mock.getName() + "TargetConnFactory");
+				beanFactory.registerBeanDefinition(mock.getName() + "SendingMessageHandler", builder.getBeanDefinition());
+				backendServices.put(mock.getName(), mock.getName() + "SendingMessageHandler");
+				builder = BeanDefinitionBuilder.rootBeanDefinition(TcpReceivingChannelAdapter.class);
+				builder.addPropertyReference("connectionFactory", mock.getName() + "TargetConnFactory");
+				builder.addPropertyReference("outputChannel", "fromCustomReceiver");
+				beanFactory.registerBeanDefinition(mock.getName()+"ClientReceivingChannel", builder.getBeanDefinition());
+			}
 			//Channel to take the requests to incoming GW.
 			builder = BeanDefinitionBuilder.rootBeanDefinition(DirectChannel.class);
 			beanFactory.registerBeanDefinition(mock.getName() + "TargetOutgoingChannel", builder.getBeanDefinition());	
-			((DirectChannel) beanFactory.getBean(mock.getName() + "TargetOutgoingChannel")).subscribe(((TcpOutboundGateway) beanFactory.getBean(backendServices.get(mock.getName()))));
+			((DirectChannel) beanFactory.getBean(mock.getName() + "TargetOutgoingChannel")).subscribe((MessageHandler) (beanFactory.getBean(backendServices.get(mock.getName()))));
 			
 		}
-		((TcpOutboundGateway) beanFactory.getBean(backendServices.get(mock.getName()))).start();
+		if (mock.getEndpointType().equals(Type.TCP)) {
+			((TcpOutboundGateway) beanFactory.getBean(backendServices.get(mock.getName()))).start();
+		} else {
+			((TcpSendingMessageHandler) beanFactory.getBean(backendServices.get(mock.getName()))).start();
+
+		}
 	}
 }

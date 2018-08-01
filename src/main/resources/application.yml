@@ -5,6 +5,7 @@ mock:
       targetHost: localhost
       targetPort: 8088
       fieldsToClear: timeStamp,nonExistingField
+      endpointType: HTTP
     - name: calculator2
       mockPort: 10089
       targetHost: localhost
