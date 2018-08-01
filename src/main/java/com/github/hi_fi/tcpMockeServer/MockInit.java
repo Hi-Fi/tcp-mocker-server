@@ -21,7 +21,7 @@ import org.springframework.integration.ip.tcp.TcpInboundGateway;
 import org.springframework.integration.ip.tcp.TcpOutboundGateway;
 import org.springframework.integration.ip.tcp.TcpReceivingChannelAdapter;
 import org.springframework.integration.ip.tcp.TcpSendingMessageHandler;
-import org.springframework.integration.ip.tcp.connection.TcpNetClientConnectionFactory;
+import org.springframework.integration.ip.tcp.connection.TcpNioClientConnectionFactory;
 import org.springframework.integration.ip.tcp.connection.TcpNioServerConnectionFactory;
 import org.springframework.integration.mapping.OutboundMessageMapper;
 import org.springframework.messaging.MessageHandler;
@@ -68,6 +68,10 @@ public class MockInit {
 		AutowireCapableBeanFactory bf = this.applicationContext.getAutowireCapableBeanFactory();
 		System.out.println("Checking properties");
 		for (Mock mock : services) {
+		    BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(TcpMockServerSerializer.class);
+            builder.addConstructorArgValue(100000);
+            builder.addConstructorArgValue(mock.getMessageStarter());
+            beanFactory.registerBeanDefinition(mock.getName() + "Serializer", builder.getBeanDefinition());
 			this.startMock(mock);
 			this.startMockBackendConnection(mock);
 		}
@@ -80,8 +84,8 @@ public class MockInit {
                 //ConnectionFactory for mock's incoming port
                 builder = BeanDefinitionBuilder.rootBeanDefinition(TcpNioServerConnectionFactory.class);
                 builder.addConstructorArgValue(mock.getMockPort());
-                builder.addPropertyValue("serializer", new TcpMockServerSerializer(100000, mock.getMessageStarter()));
-                builder.addPropertyValue("deserializer", new TcpMockServerSerializer(100000, mock.getMessageStarter()));
+                builder.addPropertyReference("serializer", mock.getName() + "Serializer");
+                builder.addPropertyReference("deserializer", mock.getName() + "Serializer");
                 beanFactory.registerBeanDefinition(mock.getName() + "MockConnFactory", builder.getBeanDefinition());
                 //Gateway for mock's incoming requests
                 builder = BeanDefinitionBuilder.rootBeanDefinition(TcpInboundGateway.class);
@@ -105,11 +109,12 @@ public class MockInit {
 	public void startMockBackendConnection(Mock mock) {
 		if (!backendServices.containsKey(mock.getName())) {
 			//ConnectionFactory for mock's connection to real endpoint
-			BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(TcpNetClientConnectionFactory.class);
+			BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(TcpNioClientConnectionFactory.class);
 			builder.addConstructorArgValue(mock.getTargetHost());
 			builder.addConstructorArgValue(mock.getTargetPort());
-			builder.addPropertyValue("serializer", new TcpMockServerSerializer(100000, mock.getMessageStarter()));
-			builder.addPropertyValue("deserializer", new TcpMockServerSerializer(100000, mock.getMessageStarter()));
+            builder.addPropertyReference("serializer", mock.getName() + "Serializer");
+            builder.addPropertyReference("deserializer", mock.getName() + "Serializer");
+			builder.addPropertyReference("mapper", "mapper");
 			beanFactory.registerBeanDefinition(mock.getName() + "TargetConnFactory", builder.getBeanDefinition());
 			
 			if (mock.getEndpointType().equals(Type.TCP)) {
@@ -128,6 +133,7 @@ public class MockInit {
 				builder.addPropertyReference("outputChannel", "fromCustomReceiver");
 				beanFactory.registerBeanDefinition(mock.getName()+"ClientReceivingChannel", builder.getBeanDefinition());
 			}
+			
 			//Channel to take the requests to incoming GW.
 			builder = BeanDefinitionBuilder.rootBeanDefinition(DirectChannel.class);
 			beanFactory.registerBeanDefinition(mock.getName() + "TargetOutgoingChannel", builder.getBeanDefinition());	

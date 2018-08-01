@@ -20,3 +20,4 @@ mock:
       targetHost: localhost
       targetPort: 9090
       fieldsToClear: BrowseNodeId
+      endpointType: HTTP
