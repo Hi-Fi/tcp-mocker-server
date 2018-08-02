@@ -53,7 +53,12 @@ public class RequestCache {
 	    return this.messageDatas;
 	}
 	
+	public void appendToMessageDatas(Map<String, MessageData> messageDatas) {
+		this.messageDatas.putAll(messageDatas);
+	}
+	
 	public void removeCachedInformation(String requestHash) {
 	    this.messageDatas.remove(requestHash);
 	}
+	
 }

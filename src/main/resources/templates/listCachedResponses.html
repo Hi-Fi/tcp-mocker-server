@@ -11,6 +11,11 @@
 </head>
 <body>
     <h1>Cached responses</h1>
+    <a th:href="@{/cache/download}">Download cache as binary file</a>
+    <form th:action="@{/cache/upload}" th:method="post" enctype="multipart/form-data">
+    					<label for="file">File to upload:</label><input type="file" name="file" />
+                        <button type="submit">Upload cacheFile</button>
+                    </form>
             <table>
                 <thead>
                     <td>Request hash</td>
