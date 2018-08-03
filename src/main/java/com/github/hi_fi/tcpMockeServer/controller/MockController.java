@@ -3,6 +3,8 @@ package com.github.hi_fi.tcpMockeServer.controller;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,8 +83,9 @@ public class MockController {
     	File cacheFile = fileService.exportCacheToFile();
     	HttpHeaders respHeaders = new HttpHeaders();
     	respHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+    	String fileName = "cacheExport_"+new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date())+".json";
     	respHeaders.set(HttpHeaders.CONTENT_DISPOSITION,
-                       "attachment; filename=cacheExport.dat");
+                       "attachment; filename="+fileName);
     	respHeaders.setContentLength(cacheFile.length());
 
         InputStreamResource isr = new InputStreamResource(new FileInputStream(cacheFile));

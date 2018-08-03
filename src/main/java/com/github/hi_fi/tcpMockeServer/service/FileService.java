@@ -11,6 +11,7 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -45,10 +46,15 @@ public class FileService {
 			ObjectMapper objectMapper = new ObjectMapper();
             TypeReference<Map<String, MessageData>> typeRef
                 = new TypeReference<Map<String, MessageData>>() {};
-            cache.appendToMessageDatas(objectMapper.readValue(file.getInputStream(), typeRef));
+            Map<String, MessageData> importedData = objectMapper.readValue(file.getInputStream(), typeRef);
+            for (Map.Entry<String, MessageData> dataItem : importedData.entrySet()) {
+            	if (dataItem.getValue().getHash().isEmpty()) {
+            		dataItem.getValue().setHash(DigestUtils.sha256Hex(dataItem.getValue().getRequestContent()));
+				}
+				cache.appendToMessageDatas(dataItem.getValue());
+			}
 		} catch (IOException e) {
 			log.error("Reading of import YAML failed", e);
 		}
 	}
-
 }
