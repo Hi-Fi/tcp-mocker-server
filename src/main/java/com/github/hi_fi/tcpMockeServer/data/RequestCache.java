@@ -40,7 +40,7 @@ public class RequestCache {
             messageData.setResponseContent(mcp.getMessageContent(responseMessage));
             messageData.setMockResponsePayload(responseMessage.getPayload());
         } else {
-            messageData = MessageData.builder().hash(requestHash).responseContent(mcp.getMessageContent(responseMessage)).mockResponse(responseMessage).build();
+            messageData = MessageData.builder().hash(requestHash).responseContent(mcp.getMessageContent(responseMessage)).mockResponsePayload(responseMessage.getPayload()).build();
         }
         this.messageDatas.put(requestHash, messageData);    
     }
