@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>com.github.hi-fi</groupId>
 	<artifactId>tcp-mocker-server</artifactId>
-	<version>0.0.4-SNAPSHOT</version>
+	<version>0.0.4</version>
 	<name>tcp-mocker-server</name>
 	<description>Test server to proxy and mock dependencies in testing.	</description>
 
