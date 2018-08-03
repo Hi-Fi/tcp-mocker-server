@@ -35,8 +35,8 @@ public class FileService {
 		    ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
             objectMapper.writeValue(outputFile, cache.getMessageDatas());
-		} catch (IOException ioe) {
-			log.error("Generation of export YAML failed", ioe);
+		} catch (Exception e) {
+			log.error("Generation of export YAML failed", e);
 		}
 		return outputFile;
 	}
@@ -53,7 +53,7 @@ public class FileService {
 				}
 				cache.appendToMessageDatas(dataItem.getValue());
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			log.error("Reading of import YAML failed", e);
 		}
 	}
