@@ -4,5 +4,5 @@ import org.springframework.messaging.Message;
 
 public interface IPayloadParser {
 
-	String getHashablePayload(Message message);
+	String getHashablePayload(Message<byte[]> message);
 }

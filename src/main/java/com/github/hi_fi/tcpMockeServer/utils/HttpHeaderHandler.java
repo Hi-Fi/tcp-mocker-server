@@ -17,9 +17,9 @@ public class HttpHeaderHandler {
 	@Autowired
 	MockInit mi;
 	
-	public Message replaceHostWithRealEndpoint(Message message) {
+	public Message replaceHostWithRealEndpoint(Message<byte[]> message) {
 		log.debug("Replacing HTTP header information in message payload");
-		String messageContent = new String((byte[]) message.getPayload());
+		String messageContent = new String(message.getPayload());
 		log.debug(messageContent);
 		String mockName = message.getHeaders().get("mockName").toString();
 		Mock mock = mi.getServices().stream()
@@ -31,8 +31,8 @@ public class HttpHeaderHandler {
 		return new GenericMessage(messageContent.getBytes(), message.getHeaders());
 	}
 	
-	public Boolean isHttpRequest(Message message) {
-		String messageContent = new String((byte[]) message.getPayload());
+	public Boolean isHttpRequest(Message<byte[]> message) {
+		String messageContent = new String(message.getPayload());
 		return messageContent.contains("HTTP/");
 	}
 }

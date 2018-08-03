@@ -24,7 +24,7 @@ public class SoapParser implements IPayloadParser {
 	MessageContentParser mcp;
 
 	@Override
-	public String getHashablePayload(Message message) {
+	public String getHashablePayload(Message<byte[]> message) {
 		String messageContent = mcp.getMessageContent(message);
 		//SOAP message, making some modifications to get valid hash.
 		//Clearing out the elements that are mentioned on the configuration

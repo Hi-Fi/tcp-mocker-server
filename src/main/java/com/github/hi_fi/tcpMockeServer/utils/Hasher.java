@@ -22,8 +22,8 @@ public class Hasher {
 	@Autowired
 	RequestCache rc;
 	
-	public String getPayloadHash(Message message) {
-		String messageContent = new String((byte[]) message.getPayload());
+	public String getPayloadHash(Message<byte[]> message) {
+		String messageContent = new String(message.getPayload());
 		if (messageContent.startsWith("POST") && messageContent.toLowerCase().contains("soapaction")) {
 			messageContent = bf.getBean(SoapParser.class).getHashablePayload(message);
 		} else if (bf.containsBean(message.getHeaders().get("mockName")+"Parser")) {

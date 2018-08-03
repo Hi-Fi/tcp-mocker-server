@@ -70,18 +70,21 @@ public class MockInit {
 	public void startMock(Mock mock) {
 		if(!mockServices.containsKey(mock.getName())){
             BeanDefinitionBuilder builder;
-                //ConnectionFactory for mock's incoming port
-                builder = BeanDefinitionBuilder.rootBeanDefinition(TcpNioServerConnectionFactory.class);
-                builder.addConstructorArgValue(mock.getMockPort());
-                builder.addPropertyValue("serializer", new TcpMockServerSerializer(100000, mock.getMessageStarter()));
-                builder.addPropertyValue("deserializer", new TcpMockServerSerializer(100000, mock.getMessageStarter()));
-                beanFactory.registerBeanDefinition(mock.getName() + "MockConnFactory", builder.getBeanDefinition());
-                //Gateway for mock's incoming requests
-                builder = BeanDefinitionBuilder.rootBeanDefinition(TcpInboundGateway.class);
-                builder.addPropertyReference("connectionFactory", mock.getName() + "MockConnFactory");
-                builder.addPropertyReference("requestChannel", mock.getName() + "MockIncomingChannel");
-                beanFactory.registerBeanDefinition(mock.getName() + "IncomingGateway", builder.getBeanDefinition());
-                mockServices.put(mock.getName(), mock.getName() + "IncomingGateway");
+            
+            //ConnectionFactory for mock's incoming port
+            builder = BeanDefinitionBuilder.rootBeanDefinition(TcpNioServerConnectionFactory.class);
+            builder.addConstructorArgValue(mock.getMockPort());
+            builder.addPropertyValue("serializer", new TcpMockServerSerializer(100000, mock.getMessageStarter()));
+            builder.addPropertyValue("deserializer", new TcpMockServerSerializer(100000, mock.getMessageStarter()));
+            beanFactory.registerBeanDefinition(mock.getName() + "MockConnFactory", builder.getBeanDefinition());
+            
+            //Gateway for mock's incoming requests
+            builder = BeanDefinitionBuilder.rootBeanDefinition(TcpInboundGateway.class);
+            builder.addPropertyReference("connectionFactory", mock.getName() + "MockConnFactory");
+            builder.addPropertyReference("requestChannel", mock.getName() + "MockIncomingChannel");
+            beanFactory.registerBeanDefinition(mock.getName() + "IncomingGateway", builder.getBeanDefinition());
+            mockServices.put(mock.getName(), mock.getName() + "IncomingGateway");
+            
 			//Enricher that adds mocks information to message headers. This created from channel automatically.
 			IntegrationFlow flow = IntegrationFlows.from(mock.getName() + "MockIncomingChannel")
 							.enrichHeaders(h -> h.header("mockName", mock.getName()).header("mockBeanName", mock.getMockBeanName()))

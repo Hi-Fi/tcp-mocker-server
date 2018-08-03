@@ -9,14 +9,20 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.github.hi_fi.tcpMockeServer.data.RequestCache;
 import com.github.hi_fi.tcpMockeServer.model.MessageData;
 
 @Service
+@Slf4j
 public class FileService {
 	
 	@Autowired
@@ -25,34 +31,23 @@ public class FileService {
 	public File exportCacheToFile() {
 		File outputFile = new File("cacheExport.dat");
 		try {
-			FileOutputStream f = new FileOutputStream(outputFile);
-			ObjectOutputStream o = new ObjectOutputStream(f);
-			o.writeObject(cache.getMessageDatas());
-			o.close();
-			f.close();
-		} catch (FileNotFoundException fnfe) {
-			// TODO Auto-generated catch block
-			fnfe.printStackTrace();
+		    ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+            objectMapper.writeValue(outputFile, cache.getMessageDatas());
 		} catch (IOException ioe) {
-			// TODO Auto-generated catch block
-			ioe.printStackTrace();
+			log.error("Generation of export YAML failed", ioe);
 		}
 		return outputFile;
 	}
 	
 	public void importCacheFromFile(MultipartFile file) {
 		try {
-			InputStream is = file.getInputStream();
-			ObjectInputStream oi = new ObjectInputStream(is);
-			cache.appendToMessageDatas((Map<String, MessageData>) oi.readObject());
-			oi.close();
-			is.close();
+			ObjectMapper objectMapper = new ObjectMapper();
+            TypeReference<Map<String, MessageData>> typeRef
+                = new TypeReference<Map<String, MessageData>>() {};
+            cache.appendToMessageDatas(objectMapper.readValue(file.getInputStream(), typeRef));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Reading of import YAML failed", e);
 		}
 	}
 
