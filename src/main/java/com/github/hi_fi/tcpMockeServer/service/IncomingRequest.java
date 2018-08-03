@@ -44,12 +44,12 @@ public class IncomingRequest {
 	MockInit mi;
 	
 	@ServiceActivator(inputChannel = "ServiceChannel")
-	public Message handleRequestMessage(Message message) {
+	public Message<byte[]> handleRequestMessage(Message<byte[]> message) {
 		String requestHash = hasher.getPayloadHash(message);
-		Message responseMessage;
+		Message<byte[]> responseMessage;
 		if (cache.isRequestInCache(requestHash)) {
 			log.debug("Returning cached message for "+requestHash);
-			responseMessage = cache.getCachedResponse(requestHash);
+			byte[] responsePayload = cache.getCachedResponsePayload(requestHash).clone();
 			Mock mock = mi.getServices().stream()
                     .filter(m -> message.getHeaders().get("mockName").equals(m.getName()))
                     .findFirst().orElse(null);
@@ -57,11 +57,10 @@ public class IncomingRequest {
                 for (String copy: mock.getBytesToCopy().split(",")) {
                     String[] replacements = copy.split(">");
                     //Direct editing of response's payload can cause interesting issues, so cloning it first
-                    byte[] responsePayload = ((byte[])responseMessage.getPayload()).clone();
-                    responsePayload[Integer.parseInt(replacements[0])] = ((byte[])message.getPayload())[Integer.parseInt(replacements[1])];
-                    responseMessage = new GenericMessage(responsePayload, message.getHeaders());
+                    responsePayload[Integer.parseInt(replacements[0])] = (message.getPayload())[Integer.parseInt(replacements[1])];
                 }
             }
+            responseMessage = new GenericMessage<byte[]>(responsePayload, message.getHeaders());
 		} else if (message.getHeaders().get("mockBeanName") != null) {
 			responseMessage = ((IMockService)bf.getBean(message.getHeaders().get("mockBeanName").toString())).getResponse(message);
 			cache.addResponseToCache(requestHash, responseMessage);

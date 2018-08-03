@@ -1,9 +1,18 @@
 package com.github.hi_fi.tcpMockeServer.controller;
 
-import java.util.List;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.integration.http.management.IntegrationGraphController;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,10 +22,13 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.github.hi_fi.tcpMockeServer.MockInit;
 import com.github.hi_fi.tcpMockeServer.data.RequestCache;
 import com.github.hi_fi.tcpMockeServer.model.Mock;
+import com.github.hi_fi.tcpMockeServer.service.FileService;
 
 @Controller
 public class MockController {
@@ -29,6 +41,9 @@ public class MockController {
     
     @Autowired
     private IntegrationGraphController igc;
+    
+    @Autowired
+    FileService fileService;
 
     @RequestMapping("/")
     public String listMocks(Map<String, Object> model) {
@@ -60,6 +75,26 @@ public class MockController {
     @DeleteMapping("/cache/{messageDataId}")
     public String removeItem(@PathVariable String messageDataId) {
         cache.removeCachedInformation(messageDataId);
+        return "redirect:/cache";
+    }
+    
+    @GetMapping("/cache/download")
+    public ResponseEntity<InputStreamResource> getCachedItems() throws FileNotFoundException {
+    	File cacheFile = fileService.exportCacheToFile();
+    	HttpHeaders respHeaders = new HttpHeaders();
+    	respHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+    	String fileName = "cacheExport_"+new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date())+".json";
+    	respHeaders.set(HttpHeaders.CONTENT_DISPOSITION,
+                       "attachment; filename="+fileName);
+    	respHeaders.setContentLength(cacheFile.length());
+
+        InputStreamResource isr = new InputStreamResource(new FileInputStream(cacheFile));
+        return new ResponseEntity<InputStreamResource>(isr, respHeaders, HttpStatus.OK);
+    }
+    
+    @PostMapping("/cache/upload")
+    public String uploadCacheFile(@RequestParam("file") MultipartFile file) {
+    	fileService.importCacheFromFile(file);
         return "redirect:/cache";
     }
 }

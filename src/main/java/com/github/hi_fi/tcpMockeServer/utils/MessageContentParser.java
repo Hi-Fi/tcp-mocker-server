@@ -11,17 +11,17 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MessageContentParser {
     
-    public String getMessageContent(Message message) {
+    public String getMessageContent(Message<byte[]> message) {
         //HTTP message
-        byte[] body = this.getBodyBytes((byte[]) message.getPayload());
+        byte[] body = this.getBodyBytes(message.getPayload());
         if (Gzip.isCompressed(body)) {
             try {
                 return Gzip.decompressGzip(body);
             } catch (IOException e) {
-                return new String((byte[]) message.getPayload());
+                return new String(message.getPayload());
             }
         } else {
-            return new String((byte[]) message.getPayload());
+            return new String(message.getPayload());
         }
         
         

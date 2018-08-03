@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 public class SimpleCalculatorMock implements IMockService {
 
 	@Override
-	public Message getResponse(Message message) {
+	public Message<byte[]> getResponse(Message<byte[]> message) {
 		MessageFactory factory;
 		try {
 			String resultingMessage = "HTTP/1.1 200 OK\r\n";
@@ -41,7 +41,7 @@ public class SimpleCalculatorMock implements IMockService {
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			soapMsg.writeTo(out);
 			resultingMessage = resultingMessage + "Content-length: "+out.toByteArray().length+"\r\n\r\n"+ out.toString();
-			return new GenericMessage(resultingMessage.getBytes(), message.getHeaders());
+			return new GenericMessage<byte[]>(resultingMessage.getBytes(), message.getHeaders());
 		} catch (SOAPException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

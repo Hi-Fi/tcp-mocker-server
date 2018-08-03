@@ -19,7 +19,7 @@ public class RequestCache {
 	private Map<String, MessageData> messageDatas = new HashMap<String, MessageData>();
 	
 	public Boolean isRequestInCache(String requestHash) {
-		return this.messageDatas.containsKey(requestHash) && this.messageDatas.get(requestHash).getMockResponse() != null;
+		return this.messageDatas.containsKey(requestHash) && this.messageDatas.get(requestHash).getMockResponsePayload() != null;
 	}
 	
 	public void addRequestContentToCache(String requestHash, String messageContent) {
@@ -33,27 +33,36 @@ public class RequestCache {
 		this.messageDatas.put(requestHash, messageData);	
 	}
 	
-	public void addResponseToCache(String requestHash, Message responseMessage) {
+	public void addResponseToCache(String requestHash, Message<byte[]> responseMessage) {
         MessageData messageData;
         if (messageDatas.containsKey(requestHash)) {
             messageData = messageDatas.get(requestHash);
             messageData.setResponseContent(mcp.getMessageContent(responseMessage));
-            messageData.setMockResponse(responseMessage);
+            messageData.setMockResponsePayload(responseMessage.getPayload());
         } else {
-            messageData = MessageData.builder().hash(requestHash).responseContent(mcp.getMessageContent(responseMessage)).mockResponse(responseMessage).build();
+            messageData = MessageData.builder().hash(requestHash).responseContent(mcp.getMessageContent(responseMessage)).mockResponsePayload(responseMessage.getPayload()).build();
         }
         this.messageDatas.put(requestHash, messageData);    
     }
 	
-	public Message getCachedResponse(String requestHash) {
-		return this.messageDatas.get(requestHash).getMockResponse();
+	public byte[] getCachedResponsePayload(String requestHash) {
+		return this.messageDatas.get(requestHash).getMockResponsePayload();
 	}
 	
 	public Map<String, MessageData> getMessageDatas() {
 	    return this.messageDatas;
 	}
 	
+	public void appendToMessageDatas(Map<String, MessageData> messageDatas) {
+		this.messageDatas.putAll(messageDatas);
+	}
+	
+	public void appendToMessageDatas(MessageData messageData) {
+		this.messageDatas.put(messageData.getHash(), messageData);
+	}
+	
 	public void removeCachedInformation(String requestHash) {
 	    this.messageDatas.remove(requestHash);
 	}
+	
 }

@@ -18,20 +18,20 @@ public class Route {
 	
 	@MessagingGateway(defaultRequestChannel = "mockTargetTransformer")
 	public interface Gateway {
-		Message sendToBacked(Message message);
+		Message<byte[]> sendToBacked(Message<byte[]> message);
 	}
 	
 	@Transformer(inputChannel="mockTargetTransformer", outputChannel = "mockTargetRouter")
-	public Message fixHttpMessageHost(Message message) {
-		GenericMessage transformedMessage = (GenericMessage) message;
+	public Message<byte[]> fixHttpMessageHost(Message<byte[]> message) {
+		GenericMessage<byte[]> transformedMessage = (GenericMessage<byte[]>) message;
 		if (hhh.isHttpRequest(message)) {
-			transformedMessage = (GenericMessage) hhh.replaceHostWithRealEndpoint(message);
+			transformedMessage = (GenericMessage<byte[]>) hhh.replaceHostWithRealEndpoint(message);
 		}
 		return transformedMessage;
 	}
 	
 	@Router(inputChannel = "mockTargetRouter")
-	public String route(Message message) {
+	public String route(Message<byte[]> message) {
 		return message.getHeaders().get("mockName") + "TargetOutgoingChannel";
 	}
 

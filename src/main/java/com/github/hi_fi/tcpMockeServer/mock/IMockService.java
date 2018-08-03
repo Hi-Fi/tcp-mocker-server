@@ -4,6 +4,6 @@ import org.springframework.messaging.Message;
 
 public interface IMockService {
 	
-	public Message getResponse(Message message);
+	public Message<byte[]> getResponse(Message<byte[]> message);
 
 }
